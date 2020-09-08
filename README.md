@@ -1,4 +1,4 @@
-# cloudformation_bare_vpc
+# AWS CloudFormation VPC Template
 An AWS CloudFormation template to deploy a bare VPC with a single Public Subnet.
 
 ## How to run
