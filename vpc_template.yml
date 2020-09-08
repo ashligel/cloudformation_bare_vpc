@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploys a VPC and an SSH security group on AWS.
+Parameters: 
+  CidrRange:
+    Type: String
+  AvailabilityZone:
+    Type: AWS::EC2::AvailabilityZone::Name
+
+Resources: 
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties: 
+      CidrBlock: !Ref CidrRange
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName} VPC'
+  
+  InternetGW:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName} Internet Gateway'
+  
+  InternetGWAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGW 
+      VpcId: !Ref VPC
+
+  PublicSubnet:
+    Type: AWS::EC2::Subnet 
+    Properties: 
+      AvailabilityZone: !Ref AvailabilityZone
+      CidrBlock: !Ref CidrRange
+      VpcId: !Ref VPC
+      Tags:
+        - Key: Name 
+          Value: !Sub '${AWS::StackName} Public Subnet'
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref VPC
+
+  PublicRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: '0.0.0.0/0'
+      GatewayId: !Ref InternetGW
+  
+  PublicRouteSubnetAssocation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      SubnetId: !Ref PublicSubnet
+    
+  Ec2SecurityGrp:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: 'SSH Security Group'
+      GroupName: !Sub '${AWS::StackName} SSH Security Group'
+      SecurityGroupIngress:
+        - CidrIp: '0.0.0.0/0'
+          FromPort: 22
+          ToPort: 22
+          IpProtocol: tcp
+      Tags:
+        - Key: Name
+          Value: !Sub '${AWS::StackName} SSH Security Group'
+      VpcId: !Ref VPC
+
+Outputs:
+  VPC:
+    Value: !Ref VPC
