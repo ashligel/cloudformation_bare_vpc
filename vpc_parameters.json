@@ -1,0 +1,10 @@
+[
+    {
+        "ParameterKey": "CidrRange",
+        "ParameterValue": "10.0.10.0/24"
+    },
+    {
+        "ParameterKey": "AvailabilityZoneSelection",
+        "ParameterValue": "eu-west-1a"
+    }
+]
